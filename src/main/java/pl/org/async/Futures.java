@@ -10,10 +10,7 @@ public class Futures {
     public static <T> CompletableFuture<T> toCompletable(Future<T> future, TaskExecutor taskExecutor) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                AsyncResource.LOG.info("before getting future result "+future);
-                T t = future.get();
-                AsyncResource.LOG.info("after getting future result "+t);
-                return t;
+                return future.get();
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }
@@ -24,9 +21,7 @@ public class Futures {
 
         return CompletableFuture.supplyAsync(() -> {
             try {
-                T t = future.get();
-                AsyncResource.LOG.info("after getting future result "+t);
-                return t;
+                return future.get();
             } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }

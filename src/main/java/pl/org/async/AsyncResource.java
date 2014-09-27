@@ -44,7 +44,7 @@ public class AsyncResource {
                 .thenCombine(facebookInfoFuture, (g, f) -> new UserInfo(f, g))
                 .thenAccept((info) -> asyncResponse.resume(info));
 
-        asyncResponse.setTimeout(1000, TimeUnit.MILLISECONDS);
+        asyncResponse.setTimeout(10000, TimeUnit.MILLISECONDS);
         asyncResponse.setTimeoutHandler(ar -> {
             ar.resume(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("Operation timed out").build());
         });
