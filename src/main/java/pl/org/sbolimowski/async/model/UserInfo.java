@@ -1,7 +1,4 @@
-package pl.org.async.model;
-
-import pl.org.async.model.FacebookInfo;
-import pl.org.async.model.GitHubInfo;
+package pl.org.sbolimowski.async.model;
 
 public class UserInfo {
     private final GitHubInfo gitHubInfo;

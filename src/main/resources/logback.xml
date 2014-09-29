@@ -6,7 +6,7 @@
         </encoder>
     </appender>
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
-    <logger name="pl.org.async" level="DEBUG"/>
+    <logger name="pl.org.sbolimowski.async" level="DEBUG"/>
 
     <root level="info">
         <appender-ref ref="STDOUT" />

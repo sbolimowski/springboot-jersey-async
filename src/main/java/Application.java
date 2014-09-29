@@ -1,4 +1,4 @@
-import pl.org.async.AsyncResource;
+import pl.org.sbolimowski.async.api.AsyncResource;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

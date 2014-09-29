@@ -1,4 +1,4 @@
-package pl.org.async.model;
+package pl.org.sbolimowski.async.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
