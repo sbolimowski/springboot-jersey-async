@@ -2,6 +2,7 @@ package pl.org.sbolimowski.async.api;
 
 import org.springframework.core.task.TaskExecutor;
 import pl.org.sbolimowski.async.core.FacebookService;
+import pl.org.sbolimowski.async.model.GitHubRepo;
 import pl.org.sbolimowski.async.utils.Futures;
 import pl.org.sbolimowski.async.core.GitHubService;
 import pl.org.sbolimowski.async.model.FacebookInfo;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE;
@@ -64,23 +66,25 @@ public class AsyncResource {
     @Produces(MediaType.APPLICATION_JSON)
     public void contributorsAsync(@Suspended AsyncResponse asyncResponse, @PathParam("user") String user) {
         Futures.toCompletable(gitHubService.reposAsync(user), executor)
-                .thenCompose(repos -> {
-                    List<CompletableFuture<List<GitHubContributor>>> collect = repos.stream()
-                            .map(r -> Futures.toCompletable(gitHubService.contributorsAsync(user, r.getName()), executor))
-                            .filter(f -> f != null)
-                            .collect(Collectors.toList());
-                    return Futures.sequence(collect);
-                })
+                .thenCompose(
+                        repos -> getContributors(user, repos))
                 .thenApply(
-                        llc -> llc.stream()
-                                .filter(lc -> lc != null)
-                                .flatMap(lc -> lc.stream())
-                                .collect(Collectors.groupingBy(c -> c.getLogin(), Collectors.counting()))
-                )
+                        contributors -> contributors.flatMap(list -> list.stream()))
                 .thenApply(
-                        lc -> asyncResponse.resume(lc))
+                        contributors -> contributors.collect(Collectors.groupingBy(
+                                c -> c.getLogin(),
+                                Collectors.counting())))
+                .thenApply(
+                        contributors -> asyncResponse.resume(contributors))
                 .exceptionally(
-                        e -> asyncResponse.resume(Response.status(INTERNAL_SERVER_ERROR).entity(e).build()));
+                        e -> asyncResponse.resume(Response.status(INTERNAL_SERVER_ERROR).entity(e).build())
+                );
+    }
+
+    private CompletableFuture<Stream<List<GitHubContributor>>> getContributors(String user, List<GitHubRepo> repos) {
+        return Futures.sequence(repos.stream()
+                .map(r -> Futures.toCompletable(gitHubService.contributorsAsync(user, r.getName()), executor))
+                .filter(f -> f != null));
     }
 
 }

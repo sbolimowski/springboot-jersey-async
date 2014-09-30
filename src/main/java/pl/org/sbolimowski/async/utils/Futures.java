@@ -1,13 +1,13 @@
 package pl.org.sbolimowski.async.utils;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Futures {
+
     public static <T> CompletableFuture<T> toCompletable(Future<T> future, Executor executor) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -18,23 +18,11 @@ public class Futures {
         }, executor);
     }
 
-    public static <T> CompletableFuture<T> toCompletable(Future<T> future) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                return future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
-    public static <T> CompletableFuture<List<T>> sequence(List<CompletableFuture<T>> futures) {
+    public static <T> CompletableFuture<Stream<T>> sequence(Stream<CompletableFuture<T>> futures) {
         CompletableFuture<Void> allDoneFuture =
-                CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]));
+                CompletableFuture.allOf(futures.toArray(value -> new CompletableFuture[(int) futures.count()]));
         return allDoneFuture.thenApply(v ->
-                        futures.stream().
-                                map(future -> future.join()).
-                                collect(Collectors.<T>toList())
+                        futures.map(future -> future.join())
         );
     }
 }
