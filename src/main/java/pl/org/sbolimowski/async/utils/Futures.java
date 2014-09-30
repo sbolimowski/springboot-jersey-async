@@ -1,9 +1,11 @@
 package pl.org.sbolimowski.async.utils;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Futures {
@@ -19,10 +21,11 @@ public class Futures {
     }
 
     public static <T> CompletableFuture<Stream<T>> sequence(Stream<CompletableFuture<T>> futures) {
+        List<CompletableFuture<T>> futureList = futures.filter(f -> f != null).collect(Collectors.toList());
         CompletableFuture<Void> allDoneFuture =
-                CompletableFuture.allOf(futures.toArray(value -> new CompletableFuture[(int) futures.count()]));
+                CompletableFuture.allOf(futureList.toArray(new CompletableFuture[futureList.size()]));
         return allDoneFuture.thenApply(v ->
-                        futures.map(future -> future.join())
+                        futureList.stream().map(future -> future.join())
         );
     }
 }

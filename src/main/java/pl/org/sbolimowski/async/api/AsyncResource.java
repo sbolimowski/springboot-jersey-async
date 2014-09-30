@@ -82,9 +82,8 @@ public class AsyncResource {
     }
 
     private CompletableFuture<Stream<List<GitHubContributor>>> getContributors(String user, List<GitHubRepo> repos) {
-        return Futures.sequence(repos.stream()
-                .map(r -> Futures.toCompletable(gitHubService.contributorsAsync(user, r.getName()), executor))
-                .filter(f -> f != null));
+        return Futures.sequence(
+                repos.stream().map(r -> Futures.toCompletable(gitHubService.contributorsAsync(user, r.getName()), executor)));
     }
 
 }
