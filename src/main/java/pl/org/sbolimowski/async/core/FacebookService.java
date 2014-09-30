@@ -10,12 +10,12 @@ import java.util.concurrent.Future;
 @Component
 public class FacebookService {
 
-    private final WebTarget webTarget= ClientBuilder.newClient()
-            .target("http://graph.facebook.com/")
-            .path("/{user}");;
+    private final WebTarget target = ClientBuilder.newClient()
+            .target("http://graph.facebook.com/");
 
     public Future<FacebookInfo> getInfoAsync(String user) {
-        return webTarget
+        return target
+                .path("/{user}")
                 .resolveTemplate("user", user)
                 .request().async()
                 .get(FacebookInfo.class);
