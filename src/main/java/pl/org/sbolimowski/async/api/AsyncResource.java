@@ -5,7 +5,7 @@ import pl.org.sbolimowski.async.core.FacebookService;
 import pl.org.sbolimowski.async.model.GitHubRepo;
 import pl.org.sbolimowski.async.utils.Futures;
 import pl.org.sbolimowski.async.core.GitHubService;
-import pl.org.sbolimowski.async.model.FacebookInfo;
+import pl.org.sbolimowski.async.model.FacebookUser;
 import pl.org.sbolimowski.async.model.GitHubContributor;
 import pl.org.sbolimowski.async.model.GitHubUser;
 import pl.org.sbolimowski.async.model.UserInfo;
@@ -44,12 +44,12 @@ public class AsyncResource {
     @Path("/userInfo/{user}")
     @Produces(MediaType.APPLICATION_JSON)
     public void userInfoAsync(@Suspended AsyncResponse asyncResponse, @PathParam("user") String user) {
-        CompletableFuture<GitHubUser> gitHubInfoFuture = Futures.toCompletable(gitHubService.userInfoAsync(user), executor);
-        CompletableFuture<FacebookInfo> facebookInfoFuture = Futures.toCompletable(facebookService.getInfoAsync(user), executor);
+        CompletableFuture<GitHubUser> gitHubFuture = Futures.toCompletable(gitHubService.userAsync(user), executor);
+        CompletableFuture<FacebookUser> facebookFuture = Futures.toCompletable(facebookService.getUserAsync(user), executor);
 
-        gitHubInfoFuture
+        gitHubFuture
                 .thenCombine(
-                        facebookInfoFuture, (g, f) -> new UserInfo(f, g))
+                        facebookFuture, (g, f) -> new UserInfo(f, g))
                 .thenApply(
                         info -> asyncResponse.resume(info))
                 .exceptionally(
@@ -83,7 +83,7 @@ public class AsyncResource {
 
     private CompletableFuture<Stream<List<GitHubContributor>>> getContributors(String user, List<GitHubRepo> repos) {
         return Futures.sequence(
-                repos.stream().map(r -> Futures.toCompletable(gitHubService.contributorsAsync(user, r.getName()), executor)));
+                repos.stream().limit(5).map(r -> Futures.toCompletable(gitHubService.contributorsAsync(user, r.getName()), executor)));
     }
 
 }

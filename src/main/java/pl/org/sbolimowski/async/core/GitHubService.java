@@ -17,7 +17,7 @@ public class GitHubService {
 
     private final WebTarget target = ClientBuilder.newClient().target("https://api.github.com/");
 
-    public Future<GitHubUser> userInfoAsync(String user) {
+    public Future<GitHubUser> userAsync(String user) {
         return target
                 .path("/users/{user}")
                 .resolveTemplate("user", user)

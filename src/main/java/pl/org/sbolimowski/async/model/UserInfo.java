@@ -2,18 +2,18 @@ package pl.org.sbolimowski.async.model;
 
 public class UserInfo {
     private final GitHubUser gitHubUser;
-    private final FacebookInfo facebookInfo;
+    private final FacebookUser facebookUser;
 
-    public UserInfo(FacebookInfo facebookInfo, GitHubUser gitHubUser) {
+    public UserInfo(FacebookUser facebookUser, GitHubUser gitHubUser) {
         this.gitHubUser = gitHubUser;
-        this.facebookInfo = facebookInfo;
+        this.facebookUser = facebookUser;
     }
 
     public GitHubUser getGitHubUser() {
         return gitHubUser;
     }
 
-    public FacebookInfo getFacebookInfo() {
-        return facebookInfo;
+    public FacebookUser getFacebookUser() {
+        return facebookUser;
     }
 }
